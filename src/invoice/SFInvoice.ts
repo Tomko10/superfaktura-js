@@ -1,5 +1,5 @@
 import SFInvoiceItem from './SFInvoiceItem';
-import SFInvoiceClient from "./SFInvoiceClient";
+import SFInvoiceClient from './SFInvoiceClient';
 
 export default class SFInvoice {
   public client: SFInvoiceClient;

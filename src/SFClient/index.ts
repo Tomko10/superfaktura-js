@@ -1,3 +1,3 @@
-import SFClient from "./SFClient";
+import SFClient from './SFClient';
 
-export {SFClient};
+export { SFClient };

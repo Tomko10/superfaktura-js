@@ -1,6 +1,6 @@
-import axios, {AxiosInstance} from 'axios';
-import {SFAPIError} from "../error";
-import {SFInvoice} from "../invoice";
+import axios, { AxiosInstance } from 'axios';
+import { SFAPIError } from '../error';
+import { SFInvoice } from '../invoice';
 
 const defaultBaseURL = 'https://moja.superfaktura.sk';
 const createInvoiceURL = 'invoices/create';
@@ -15,11 +15,7 @@ export default class SFClient {
   private readonly companyId: string | undefined;
   private fetcher: AxiosInstance;
 
-  constructor(email: string,
-              apiKey: string,
-              module: string,
-              companyId?: string,
-              apiUrl: string = defaultBaseURL) {
+  constructor(email: string, apiKey: string, module: string, companyId?: string, apiUrl: string = defaultBaseURL) {
     this.email = email;
     this.apiKey = apiKey;
     this.module = module;
@@ -32,21 +28,20 @@ export default class SFClient {
   }
 
   constructFilter(params: { [key: string]: any }) {
-    return Object
-      .entries(params)
+    return Object.entries(params)
       .map(([key, value]) => `/${key}:${value.toString()}`)
       .join('');
   }
 
   requestHeaders() {
-    const authHeader = `SFAPI email=${this.email}
+    const authHeader =
+      `SFAPI email=${this.email}
                       &apikey=${this.apiKey}
-                      &module=${this.module}`
-      + (this.companyId ? `&company_id=${this.companyId}` : '')
+                      &module=${this.module}` + (this.companyId ? `&company_id=${this.companyId}` : '');
 
     return {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'Authorization': authHeader,
+      Authorization: authHeader,
     };
   }
 
@@ -59,12 +54,13 @@ export default class SFClient {
    * @returns {Promise<any>} The response from the API
    * @throws {SFAPIError} If the API returns an error
    */
-  async sendRequest(action: string,
-                    method: string = 'GET',
-                    data?: { [key: string]: any },
-                    filter?: { [key: string]: any }) {
-    const url = `${this.apiUrl}/${action}`
-      + (filter ? '/' + this.constructFilter(filter) : '');
+  async sendRequest(
+    action: string,
+    method: string = 'GET',
+    data?: { [key: string]: any },
+    filter?: { [key: string]: any },
+  ) {
+    const url = `${this.apiUrl}/${action}` + (filter ? '/' + this.constructFilter(filter) : '');
 
     try {
       const response = await this.fetcher.request({
@@ -78,7 +74,8 @@ export default class SFClient {
         throw new SFAPIError(
           `${method} on ${action} failed with status 
           ${response.status}: ${response.statusText}`,
-          response.status);
+          response.status,
+        );
       }
 
       return response.data;
@@ -87,8 +84,7 @@ export default class SFClient {
       if (error instanceof SFAPIError) {
         throw error;
       } else if (error instanceof Error) {
-        throw new SFAPIError(
-          `${method} on ${action} failed with ${error.message}`);
+        throw new SFAPIError(`${method} on ${action} failed with ${error.message}`);
       }
     }
   }
@@ -102,7 +98,7 @@ export default class SFClient {
     const data = {
       Client: invoice.client.params,
       Invoice: invoice.params,
-      Items: invoice.items.map(item => item.params),
+      Items: invoice.items.map((item) => item.params),
     };
 
     return this.sendRequest(createInvoiceURL, 'POST', data);
@@ -115,14 +111,11 @@ export default class SFClient {
    */
   async getPdf(invoiceId: string, token: string) {
     const action = getPdfURL + '/' + invoiceId;
-    return this.sendRequest(action, 'GET', undefined, {token});
+    return this.sendRequest(action, 'GET', undefined, { token });
   }
 
   async listInvoices(params: { [key: string]: any }) {
-    const invoices = this.sendRequest(listInvoicesURL,
-      'GET',
-      undefined,
-      params);
+    const invoices = this.sendRequest(listInvoicesURL, 'GET', undefined, params);
     // TODO: Parse the response into SFInvoice objects
   }
 }
