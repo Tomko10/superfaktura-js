@@ -106,3 +106,5 @@ dist
 # IDEs
 .idea/
 
+# Build
+/lib
