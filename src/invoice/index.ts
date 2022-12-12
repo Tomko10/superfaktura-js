@@ -1,5 +1,4 @@
-import SFInvoice from './SFInvoice';
-import SFInvoiceItem from './SFInvoiceItem';
-import SFInvoiceClient from './SFInvoiceClient';
+import Invoice from './Invoice';
+import InvoiceItem from './InvoiceItem';
 
-export { SFInvoice, SFInvoiceItem, SFInvoiceClient };
+export { Invoice, InvoiceItem };
