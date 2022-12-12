@@ -1,11 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { SFAPIError } from '../error';
-import { SFInvoice } from '../invoice';
 
 const defaultBaseURL = 'https://moja.superfaktura.sk';
-const createInvoiceURL = 'invoices/create';
-const listInvoicesURL = 'invoices/index.json';
-const getPdfURL = 'invoices/pdf';
 
 export default class SFClient {
   private readonly apiUrl: string;
@@ -15,7 +11,13 @@ export default class SFClient {
   private readonly companyId: string | undefined;
   private fetcher: AxiosInstance;
 
-  constructor(email: string, apiKey: string, module: string, companyId?: string, apiUrl: string = defaultBaseURL) {
+  constructor(
+    email: string,
+    apiKey: string,
+    module: string,
+    companyId?: string,
+    apiUrl: string = defaultBaseURL,
+  ) {
     this.email = email;
     this.apiKey = apiKey;
     this.module = module;
@@ -27,22 +29,30 @@ export default class SFClient {
     });
   }
 
-  constructFilter(params: { [key: string]: any }) {
+  private static constructFilter(params: { [key: string]: any }) {
     return Object.entries(params)
       .map(([key, value]) => `/${key}:${value.toString()}`)
       .join('');
   }
 
-  requestHeaders() {
+  private requestHeaders() {
     const authHeader =
-      `SFAPI email=${this.email}
-                      &apikey=${this.apiKey}
-                      &module=${this.module}` + (this.companyId ? `&company_id=${this.companyId}` : '');
+      `SFAPI email=${this.email}` +
+      `&apikey=${this.apiKey}` +
+      `&module=${this.module}` +
+      (this.companyId ? `&company=${this.companyId}` : '');
 
     return {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
       Authorization: authHeader,
     };
+  }
+
+  private requestUrl(action: string, filter?: { [key: string]: any }) {
+    return (
+      `${this.apiUrl}${action}` +
+      (filter ? SFClient.constructFilter(filter) : '')
+    );
   }
 
   /**
@@ -60,7 +70,7 @@ export default class SFClient {
     data?: { [key: string]: any },
     filter?: { [key: string]: any },
   ) {
-    const url = `${this.apiUrl}/${action}` + (filter ? '/' + this.constructFilter(filter) : '');
+    const url = this.requestUrl(action, filter);
 
     try {
       const response = await this.fetcher.request({
@@ -70,10 +80,18 @@ export default class SFClient {
         data: data ? 'data=' + JSON.stringify(data) : undefined,
       });
 
-      if (response.status < 200 || response.status >= 300) {
+      if (
+        response.status < 200 ||
+        response.status >= 300 ||
+        response.data.error > 0
+      ) {
         throw new SFAPIError(
           `${method} on ${action} failed with status 
-          ${response.status}: ${response.statusText}`,
+          ${response.status}: ${
+            response.data.error > 0
+              ? response.data.error_message
+              : response.statusText
+          }`,
           response.status,
         );
       }
@@ -84,38 +102,10 @@ export default class SFClient {
       if (error instanceof SFAPIError) {
         throw error;
       } else if (error instanceof Error) {
-        throw new SFAPIError(`${method} on ${action} failed with ${error.message}`);
+        throw new SFAPIError(
+          `${method} on ${action} failed with ${error.message}`,
+        );
       }
     }
-  }
-
-  /**
-   * Creates an invoice in the API
-   * @param invoice {SFInvoice} The invoice to create
-   * @returns {Promise<any>} The response from the API
-   */
-  async createInvoice(invoice: SFInvoice) {
-    const data = {
-      Client: invoice.client.params,
-      Invoice: invoice.params,
-      Items: invoice.items.map((item) => item.params),
-    };
-
-    return this.sendRequest(createInvoiceURL, 'POST', data);
-  }
-
-  /**
-   * Gets an invoice's PDF from the API
-   * @param invoiceId {string} The ID of the invoice to get
-   * @param token {string} The token of the invoice to get
-   */
-  async getPdf(invoiceId: string, token: string) {
-    const action = getPdfURL + '/' + invoiceId;
-    return this.sendRequest(action, 'GET', undefined, { token });
-  }
-
-  async listInvoices(params: { [key: string]: any }) {
-    const invoices = this.sendRequest(listInvoicesURL, 'GET', undefined, params);
-    // TODO: Parse the response into SFInvoice objects
   }
 }
