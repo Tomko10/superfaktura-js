@@ -1,4 +1,4 @@
-import { SFClient } from '../SFClient';
+import { SFClient } from '../../SFClient';
 
 const defaultBriefUrl = '/countries';
 const defaultDetailedUrl = '/countries/index';
