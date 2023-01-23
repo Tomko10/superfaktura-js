@@ -14,20 +14,28 @@ import {
   nullableString,
 } from '../utils/parse';
 import { PartialNullable } from '../utils/types';
+import {
+  Currency,
+  DeliveryType,
+  InvoiceType,
+  Language,
+  PaymentType,
+  RoundingType,
+} from '../value-lists/static';
 
 interface BaseInvoice {
   comment: string;
   constant: string;
   created: Date;
   delivery: Date;
-  delivery_type: string;
+  delivery_type: DeliveryType;
   deposit: number;
   discount: number;
   due: Date;
   estimate_id: number | null;
   header_comment: string;
   internal_comment: string | null;
-  invoice_currency: string;
+  invoice_currency: Currency;
   invoice_no_formatted: string;
   issued_by: string;
   issued_by_email: string;
@@ -37,13 +45,13 @@ interface BaseInvoice {
   order_no: string | null;
   parent_id: number | null;
   paydate: Date | null;
-  payment_type: string | null;
+  payment_type: PaymentType | null;
   proforma_id: string | null;
-  rounding: string;
+  rounding: RoundingType;
   sequence_id: number;
   specific: string | null;
   tax_document: boolean | null;
-  type: string;
+  type: InvoiceType;
   variable: string;
   vat_transfer: boolean | null;
 }
@@ -132,6 +140,16 @@ export interface GetInvoiceData {
   SummaryInvoice: any;
   Tags: any[];
   UnitCount: any[];
+}
+
+export interface SendInvoiceParams {
+  invoice_id: number;
+  to: string;
+  bcc?: string[];
+  body?: string;
+  cc?: string[];
+  pdf_language?: Language;
+  subject?: string;
 }
 
 export default class Invoice {
@@ -251,5 +269,15 @@ export default class Invoice {
       return null;
     }
     return Invoice.parseResponse(data);
+  }
+
+  public static async sendEmail(client: SFClient, params: SendInvoiceParams) {
+    const response = await client.sendRequest('/invoices/send', 'POST', {
+      Email: params,
+    });
+    if (!response?.data) {
+      return null;
+    }
+    return Invoice.parseResponse(response.data);
   }
 }
