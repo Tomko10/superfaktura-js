@@ -30,4 +30,13 @@ export default class Countries {
   ): Promise<CountryDetail[]> {
     return client.sendRequest(actionUrl, 'GET', undefined, { view_full: 1 });
   }
+
+  public static async getByName(
+    client: SFClient,
+    name: string,
+    listDetailedUrl: string = defaultDetailedUrl,
+  ): Promise<CountryDetail | undefined> {
+    const countries = await this.listDetailed(client, listDetailedUrl);
+    return countries.find((country) => country.Country.name === name);
+  }
 }
