@@ -8,6 +8,7 @@ import InvoiceItem, {
 import { Client } from '../client';
 import {
   bool,
+  formatDates,
   nullableBool,
   nullableDate,
   nullableInt,
@@ -249,10 +250,12 @@ export default class Invoice {
   }
 
   public static async create(client: SFClient, params: CreateInvoiceParams) {
+    const formattedParams = formatDates(params);
+
     const response = await client.sendRequest(
       '/invoices/create',
       'POST',
-      params,
+      formattedParams,
     );
     if (!response?.data) {
       return null;

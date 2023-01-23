@@ -1,3 +1,5 @@
+import { isDict } from './types';
+
 export const nullable = <T>(value: string, f: (v: string) => T) => {
   if (value === null || value === undefined) {
     return null;
@@ -19,3 +21,17 @@ export const nullableDate = (value: string) =>
 export const bool = (value: string) => value === '1';
 
 export const nullableBool = (value: string) => nullable(value, bool);
+
+export const formatDates = (params: any) => {
+  const formattedParams: any = { ...params };
+  Object.entries(params).forEach(([key, value]) => {
+    if (value instanceof Date) {
+      formattedParams[key] = value.toISOString().split('T')[0];
+    }
+    if (isDict(value)) {
+      formattedParams[key] = formatDates(value);
+    }
+  });
+
+  return formattedParams;
+};
