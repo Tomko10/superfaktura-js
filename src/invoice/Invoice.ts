@@ -1,6 +1,6 @@
 import { BankAccount } from '../bank-account';
 import { ICreateClient, IGetClient } from '../client/Client';
-import { SFClient } from '../SFClient';
+import SFClient from '../SFClient';
 import InvoiceItem, {
   ICreateInvoiceItem,
   IGetInvoiceItem,

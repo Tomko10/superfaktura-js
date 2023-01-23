@@ -1,4 +1,4 @@
-import { SFClient } from '../SFClient';
+import SFClient from '../SFClient';
 import { PartialNullable } from '../utils/types';
 import { nullableFloat, nullableInt } from '../utils/parse';
 
