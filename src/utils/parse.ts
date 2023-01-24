@@ -22,14 +22,15 @@ export const bool = (value: string) => value === '1';
 
 export const nullableBool = (value: string) => nullable(value, bool);
 
-export const formatDates = (params: any) => {
+export const formatFields = (params: any) => {
   const formattedParams: any = { ...params };
   Object.entries(params).forEach(([key, value]) => {
     if (value instanceof Date) {
       formattedParams[key] = value.toISOString().split('T')[0];
-    }
-    if (isDict(value)) {
-      formattedParams[key] = formatDates(value);
+    } else if (typeof value === 'boolean') {
+      formattedParams[key] = value ? '1' : '0';
+    } else if (isDict(value)) {
+      formattedParams[key] = formatFields(value);
     }
   });
 
