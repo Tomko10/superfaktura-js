@@ -114,7 +114,7 @@ export interface CreateInvoiceParams {
   InvoiceSettings?: {
     settings: string;
   };
-  InvoiceExtra?: null; // TODO
+  InvoiceExtras?: null; // TODO
   MyData?: null; // TODO
 }
 
