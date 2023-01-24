@@ -111,7 +111,7 @@ export interface CreateInvoiceParams {
   Invoice: Partial<ICreateInvoice>;
   InvoiceItem: Partial<ICreateInvoiceItem>[];
   Client: Partial<ICreateClient>;
-  InvoiceSetting?: {
+  InvoiceSettings?: {
     settings: string;
   };
   InvoiceExtra?: null; // TODO
