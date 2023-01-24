@@ -29,6 +29,8 @@ export const formatFields = (params: any) => {
       formattedParams[key] = value.toISOString().split('T')[0];
     } else if (typeof value === 'boolean') {
       formattedParams[key] = value ? '1' : '0';
+    } else if (Array.isArray(value)) {
+      formattedParams[key] = value.map((v) => formatFields(v));
     } else if (isDict(value)) {
       formattedParams[key] = formatFields(value);
     }
