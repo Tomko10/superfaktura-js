@@ -207,7 +207,7 @@ export default class Invoice {
           lang: nullableString(invoiceIn.lang),
           mask: invoiceIn.mask,
           modified: new Date(invoiceIn.modified),
-          my_data: JSON.parse(invoiceIn.my_data),
+          my_data: invoiceIn.my_data,
           name: invoiceIn.name,
           order_no: nullableString(invoiceIn.order_no),
           paid: parseFloat(invoiceIn.paid),
